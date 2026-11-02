@@ -16928,11 +16928,15 @@ class NetworkManager {
 
       const blend = Math.min(1, 16 * dt);
       c.pos.lerp(rData.targetPos, blend);
-      c.body.position.copy(c.pos);
-      c.body.quaternion.slerp(rData.targetQuat, blend);
-      c.quat.copy(c.body.quaternion);
-      c.body.velocity.lerp(rData.targetVel, blend);
-      c.vel.copy(c.body.velocity);
+      c.body.position.set(c.pos.x, c.pos.y, c.pos.z);
+
+      c.quat.slerp(rData.targetQuat, blend);
+      c.body.quaternion.set(c.quat.x, c.quat.y, c.quat.z, c.quat.w);
+
+      if (c.vel && rData.targetVel) {
+        c.vel.lerp(rData.targetVel, blend);
+        c.body.velocity.set(c.vel.x, c.vel.y, c.vel.z);
+      }
       c.speed = rData.speed;
       c.fwdSpeed = rData.fwdSpeed;
       c.steerVis = THREE.MathUtils.lerp(c.steerVis || 0, rData.steer || 0, blend);
