@@ -1,0 +1,24 @@
+{
+  "name": "rumble-gt",
+  "version": "2.4.0",
+  "description": "Rumble GT - 3D Arcade Stunt Racing Game with WebRTC Free Multiplayer",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "node share.mjs",
+    "share": "node share.mjs",
+    "server": "npx http-server -p 8123 -c-1",
+    "test": "node _test_multiplayer_wan.mjs"
+  },
+  "keywords": [
+    "threejs",
+    "cannon-es",
+    "webrtc",
+    "peerjs",
+    "racing-game",
+    "arcade",
+    "multiplayer"
+  ],
+  "author": "",
+  "license": "MIT"
+}

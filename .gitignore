@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Test runners, debug scripts & dumps
+_*
+*.json
+!package.json
+cdp_helper.mjs
+.edge_profile*
+scratch/
+
+# All screenshots except the verified lobby for README
+*.png
+!shot_multiplayer_lobby_verified.png
+*.log
+
+# Backups
+*.backup.html
+*.ds_backup.html
+
+# OS files
+.DS_Store
+Thumbs.db
