@@ -1139,16 +1139,17 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .lobby-body {
   display: grid;
-  grid-template-columns: 350px 1fr;
-  gap: 20px;
-  padding: 20px 24px;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  padding: 16px 20px;
   overflow-y: auto;
   flex: 1;
+  max-height: calc(90vh - 65px);
 }
 .lobby-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .lobby-input-group label {
   display: block;
@@ -1231,15 +1232,58 @@ canvas { display: block; width: 100%; height: 100%; }
 .btn-lobby-action.join {
   background: linear-gradient(135deg, var(--green), #0d9488);
 }
+.join-status-banner {
+  padding: 8px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 3px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  margin-top: 6px;
+  animation: pulseStatus 2s infinite ease-in-out;
+}
+@keyframes pulseStatus {
+  0%, 100% { opacity: 0.92; }
+  50% { opacity: 1; filter: brightness(1.15); }
+}
+.rc-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  margin: 0 auto;
+}
+.rc-badge.host {
+  background: rgba(255, 197, 61, 0.2);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+}
+.rc-badge.guest {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+.btn-leave-room {
+  background: rgba(255, 45, 85, 0.15) !important;
+  border-color: rgba(255, 45, 85, 0.5) !important;
+  color: #ff476f !important;
+}
+.btn-leave-room:hover {
+  background: rgba(255, 45, 85, 0.35) !important;
+  color: #fff !important;
+}
 .room-code-box {
   background: rgba(53, 231, 255, 0.08);
   border: 1px solid rgba(53, 231, 255, 0.35);
-  padding: 14px;
+  padding: 10px 14px;
   text-align: center;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .rc-label {
   font-size: 8px;
@@ -1919,62 +1963,70 @@ canvas { display: block; width: 100%; height: 100%; }
           <input type="text" id="lobby-player-name" maxlength="12" value="SEN" placeholder="Adınızı girin..." />
         </div>
 
-        <div class="section-label" style="margin-top:4px;">ODA BAĞLANTISI</div>
-        
-        <div class="lobby-tab-bar">
-          <button class="lobby-tab active" id="tab-create-room">ODA OLUŞTUR</button>
-          <button class="lobby-tab" id="tab-join-room">ODAYA KATIL</button>
-        </div>
-
-        <!-- ODA OLUŞTUR BÖLÜMÜ -->
-        <div class="lobby-pane" id="pane-create-room">
-          <p class="lobby-desc">Arkadaşlarınızla yarışmak için oda kurun. Alacağınız oda kodunu arkadaşlarınıza gönderin.</p>
-          <button class="btn-lobby-action" id="btn-create-room-action">
-            <span>🚀 YENİ ODA AÇ (KURUCU)</span>
-          </button>
-        </div>
-
-        <!-- ODAYA KATIL BÖLÜMÜ -->
-        <div class="lobby-pane hidden" id="pane-join-room">
-          <p class="lobby-desc">Arkadaşınızın paylaştığı 5 haneli oda kodunu veya davet linkini yapıştırın.</p>
-          <div class="lobby-input-group">
-            <label>ODA KODU VEYA DAVET LİNKİ</label>
-            <input type="text" id="join-room-code-input" maxlength="120" placeholder="ÖRN: 78421 veya Davet Linki" style="text-transform:uppercase; letter-spacing:2px; font-size:14px; font-weight:900;" />
+        <!-- ODA KURULUMU / GİRİŞ KONTEYNERİ (Oda dışındayken görünür) -->
+        <div id="lobby-connection-setup">
+          <div class="section-label" style="margin-top:4px;">ODA BAĞLANTISI</div>
+          
+          <div class="lobby-tab-bar">
+            <button class="lobby-tab active" id="tab-create-room">ODA OLUŞTUR</button>
+            <button class="lobby-tab" id="tab-join-room">ODAYA KATIL</button>
           </div>
-          <button class="btn-lobby-action join" id="btn-join-room-action">
-            <span>🔗 ODAYA KATIL</span>
-          </button>
+
+          <!-- ODA OLUŞTUR BÖLÜMÜ -->
+          <div class="lobby-pane" id="pane-create-room">
+            <p class="lobby-desc">Arkadaşlarınızla yarışmak için oda kurun. Alacağınız oda kodunu arkadaşlarınıza gönderin.</p>
+            <button class="btn-lobby-action" id="btn-create-room-action">
+              <span>🚀 YENİ ODA AÇ (KURUCU)</span>
+            </button>
+            <div class="join-status-banner" id="create-status-banner" style="display:none;"></div>
+          </div>
+
+          <!-- ODAYA KATIL BÖLÜMÜ -->
+          <div class="lobby-pane hidden" id="pane-join-room">
+            <p class="lobby-desc">Arkadaşınızın paylaştığı 5 haneli oda kodunu veya davet linkini yapıştırın.</p>
+            <div class="lobby-input-group">
+              <label>5 HANELİ ODA KODU VEYA DAVET LİNKİ</label>
+              <input type="text" id="join-room-code-input" maxlength="120" placeholder="ÖRN: 34577" style="text-transform:uppercase; letter-spacing:3px; font-size:16px; font-weight:900; text-align:center;" />
+            </div>
+            <button class="btn-lobby-action join" id="btn-join-room-action">
+              <span>🔗 ODAYA KATIL</span>
+            </button>
+            <div class="join-status-banner" id="join-status-banner" style="display:none;"></div>
+          </div>
         </div>
 
-        <!-- AKTİF ODA BİLGİSİ VE KOPYALAMA -->
+        <!-- AKTİF ODA KARTI (Sadece odaya bağlanıldığında veya oda açıldığında görünür) -->
         <div class="room-code-box hidden" id="room-code-box">
-          <div class="rc-label">AKTİF ODA KODU</div>
+          <div id="rc-header-badge" class="rc-badge host">👑 ODA KURUCUSUSUNUZ</div>
+          <div class="rc-label" style="margin-top:2px;">AKTİF ODA KODU</div>
           <div class="rc-val" id="display-room-code">------</div>
-          <div class="rc-actions">
-            <button class="btn-sub on" id="btn-copy-code">📋 5 HANELİ KODU KOPYALA</button>
-            <button class="btn-sub" id="btn-copy-link">🔗 DAVET LİNKİ KOPYALA</button>
+          
+          <!-- Kurucu Butonları -->
+          <div class="rc-actions" id="rc-host-actions">
+            <button class="btn-sub on" id="btn-copy-code">📋 KODU KOPYALA</button>
+            <button class="btn-sub" id="btn-copy-link">🔗 DAVET LİNKİ</button>
+            <button class="btn-sub btn-leave-room" id="btn-host-close">🚪 ODAYI KAPAT</button>
           </div>
+
+          <!-- Misafir Butonları -->
+          <div class="rc-actions" id="rc-guest-actions" style="display:none;">
+            <button class="btn-sub btn-leave-room" id="btn-guest-leave" style="width:100%;">🚪 ODADAN AYRIL</button>
+          </div>
+
           <div class="rc-status" id="lobby-connection-status">🟢 Çevrimiçi · Bağlantı Hazır</div>
 
-          <!-- WAN / GENEL İNTERNET PANELİ -->
+          <!-- WAN Bilgi Notu -->
           <div class="rc-wan-panel" id="rc-wan-panel">
             <div class="rc-wan-header" id="rc-wan-toggle-btn">
-              <span>🌐 FARKLI İNTERNET / GENEL LİNK AYARI</span>
+              <span>🌐 GENEL İNTERNET PAYLAŞIMI</span>
               <span id="rc-wan-chevron">▼</span>
             </div>
             <div class="rc-wan-content hidden" id="rc-wan-content">
-              <div class="rc-wan-tip" id="rc-wan-current-info">
-                <span>Mod: <b id="rc-wan-mode-text">Yerel / Tünel Kontrol Ediliyor</b></span>
-              </div>
-              <div class="rc-input-btn-row">
-                <input type="text" id="input-custom-public-url" placeholder="https://ornek.loca.lt veya https://kullanici.github.io/rumble" />
-                <button class="btn-sub on" id="btn-save-public-url" style="white-space:nowrap; padding:4px 8px; font-size:9px;">KAYDET</button>
-                <button class="btn-sub" id="btn-reset-public-url" style="white-space:nowrap; padding:4px 6px; font-size:9px;">SIFIRLA</button>
+              <div class="rc-wan-tip">
+                <span>Canlı Web: <b>doganaslan.github.io/rumble</b></span>
               </div>
               <div class="rc-guide-wan">
-                <span>💡 <b>Farklı İnternetteki Arkadaşınız İçin (%100 Ücretsiz):</b></span>
-                <span>• <b>1. YÖNTEM (Tek Komutla Canlı Paylaşım):</b> Terminalde <code>node share.mjs</code> çalıştırın. Dünyanın her yerinden tek tıkla girilecek HTTPS linki verir!</span>
-                <span>• <b>2. YÖNTEM (Kalıcı 7/24 Web):</b> <code>index.html</code> dosyasını GitHub Pages veya Vercel'e yükleyin (tamamen ücretsiz). Linkinizi yukarıya kaydedin.</span>
+                <span>💡 "DAVET LİNKİ"ne bastığınızda arkadaşınız için tek tıkla doğrudan odaya giriş linki kopyalanır.</span>
               </div>
             </div>
           </div>
@@ -16117,27 +16169,8 @@ const WEBRTC_CONFIG = {
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
       { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' },
       { urls: 'stun:stun.cloudflare.com:3478' },
-      { urls: 'stun:global.stun.twilio.com:3478' },
-      { urls: 'stun:stun.services.mozilla.com' },
-      { urls: 'stun:stun.nextcloud.com:443' },
-      {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      }
+      { urls: 'stun:global.stun.twilio.com:3478' }
     ],
     iceCandidatePoolSize: 10
   }
@@ -16166,6 +16199,76 @@ class NetworkManager {
     this.pingInterval = null;
     this.myPing = 0;
     this.customPublicUrl = localStorage.getItem('rumble.publicUrl') || '';
+  }
+
+  setJoinLoading(loading, text = 'ODAYA BAĞLANILIYOR...') {
+    const btn = $('btn-join-room-action');
+    if (btn) {
+      btn.disabled = loading;
+      btn.style.opacity = loading ? '0.75' : '1';
+      btn.style.pointerEvents = loading ? 'none' : 'auto';
+      btn.innerHTML = loading ? `<span>⏳ ${text}</span>` : `<span>🔗 ODAYA KATIL</span>`;
+    }
+    const inp = $('join-room-code-input');
+    if (inp) inp.disabled = loading;
+  }
+
+  setJoinStatus(text, color = 'var(--gold)') {
+    const el = $('join-status-banner');
+    if (el) {
+      if (!text) {
+        el.style.display = 'none';
+        el.innerHTML = '';
+      } else {
+        el.style.display = 'block';
+        el.innerHTML = text;
+        el.style.color = color;
+        el.style.background = 'rgba(0,0,0,0.7)';
+        el.style.border = `1px solid ${color}`;
+      }
+    }
+  }
+
+  setCreateStatus(text, color = 'var(--gold)') {
+    const el = $('create-status-banner');
+    if (el) {
+      if (!text) {
+        el.style.display = 'none';
+        el.innerHTML = '';
+      } else {
+        el.style.display = 'block';
+        el.innerHTML = text;
+        el.style.color = color;
+        el.style.background = 'rgba(0,0,0,0.7)';
+        el.style.border = `1px solid ${color}`;
+      }
+    }
+  }
+
+  showRoomActiveUI(isHost) {
+    const setupBox = $('lobby-connection-setup');
+    const activeBox = $('room-code-box');
+    if (setupBox) setupBox.style.display = 'none';
+    if (activeBox) activeBox.classList.remove('hidden');
+
+    const disp = $('display-room-code');
+    if (disp) disp.innerText = this.roomCode;
+
+    const hostActions = $('rc-host-actions');
+    const guestActions = $('rc-guest-actions');
+    if (hostActions) hostActions.style.display = isHost ? 'flex' : 'none';
+    if (guestActions) guestActions.style.display = isHost ? 'none' : 'flex';
+
+    const headerBadge = $('rc-header-badge');
+    if (headerBadge) {
+      headerBadge.innerText = isHost ? '👑 ODA KURUCUSUSUNUZ' : '🟢 ODAYA KATILDINIZ';
+      headerBadge.className = 'rc-badge ' + (isHost ? 'host' : 'guest');
+    }
+
+    const wanPanel = $('rc-wan-panel');
+    if (wanPanel) wanPanel.style.display = isHost ? 'block' : 'none';
+
+    this.updateStatus('🟢 Çevrimiçi · Bağlantı Hazır', 'var(--green)');
   }
 
   async init() {
@@ -16210,7 +16313,6 @@ class NetworkManager {
         selectLobbyTab('join');
         const inp = $('join-room-code-input');
         if (inp) inp.value = roomParam;
-        this.updateStatus('🔗 Davet linki algılandı (' + roomParam + ') · Odaya bağlanılıyor...', 'var(--cyan)');
         this.joinRoom(roomParam);
       }, 500);
     }
@@ -16243,18 +16345,8 @@ class NetworkManager {
 
   createRoom() {
     if (typeof Peer === 'undefined') {
-      let attempts = 0;
-      this.updateStatus('WebRTC kütüphanesi bekleniyor...', 'var(--gold)');
-      const checkPeer = setInterval(() => {
-        attempts++;
-        if (typeof Peer !== 'undefined') {
-          clearInterval(checkPeer);
-          this.createRoom();
-        } else if (attempts > 20) {
-          clearInterval(checkPeer);
-          alert('PeerJS kütüphanesi yüklenemedi. İnternet bağlantınızı kontrol edin.');
-        }
-      }, 200);
+      this.setCreateStatus('WebRTC kütüphanesi yükleniyor, lütfen bekleyin...', 'var(--gold)');
+      setTimeout(() => this.createRoom(), 400);
       return;
     }
     this.disconnect();
@@ -16262,7 +16354,7 @@ class NetworkManager {
     const code = String(Math.floor(Math.random() * 90000 + 10000));
     this.roomCode = code;
     const peerId = 'rumble-room-' + code;
-    this.updateStatus('Oda sunucusuna bağlanılıyor...', 'var(--gold)');
+    this.setCreateStatus('Oda açılıyor, sunucuya bağlanılıyor...', 'var(--gold)');
 
     this.peer = new Peer(peerId, WEBRTC_CONFIG);
 
@@ -16271,12 +16363,9 @@ class NetworkManager {
       this.isHost = true;
       this.myId = id;
       this.connected = true;
-      this.updateStatus('🟢 Çevrimiçi · Oda Açık (P2P Aktif)', 'var(--green)');
+      this.setCreateStatus('');
 
-      const disp = $('display-room-code');
-      if (disp) disp.innerText = this.roomCode;
-      const box = $('room-code-box');
-      if (box) box.classList.remove('hidden');
+      this.showRoomActiveUI(true);
 
       const pDef = CAR_CATALOG[state.currentCarIdx] || CAR_CATALOG[0];
       this.lobbyPlayers = [{
@@ -16290,7 +16379,6 @@ class NetworkManager {
         ping: 0
       }];
 
-      // Start ping heartbeat to connected clients
       if (this.pingInterval) clearInterval(this.pingInterval);
       this.pingInterval = setInterval(() => {
         if (this.isHost && this.connections.size > 0) {
@@ -16308,11 +16396,16 @@ class NetworkManager {
     });
 
     this.peer.on('connection', (conn) => {
-      conn.on('open', () => {
+      const handleOpen = () => {
         this.connections.set(conn.peer, conn);
         this.setupConnectionHandlers(conn);
         this.broadcastLobbyState();
-      });
+      };
+      if (conn.open) {
+        handleOpen();
+      } else {
+        conn.on('open', handleOpen);
+      }
       conn.on('close', () => {
         this.connections.delete(conn.peer);
         this.lobbyPlayers = this.lobbyPlayers.filter(p => p.id !== conn.peer);
@@ -16322,102 +16415,132 @@ class NetworkManager {
     });
 
     this.peer.on('error', (err) => {
-      console.warn('Peer error:', err);
+      console.warn('Host Peer error:', err);
       if (err.type === 'unavailable-id') {
         setTimeout(() => this.createRoom(), 200);
       } else {
-        this.updateStatus('Hata: ' + (err.type || 'Bağlantı hatası'), 'var(--red)');
+        this.setCreateStatus('Hata: ' + (err.type || 'Bağlantı hatası'), 'var(--red)');
       }
     });
   }
 
-  joinRoom(code, attempt = 1) {
+  joinRoom(code) {
     if (typeof Peer === 'undefined') {
-      let attempts = 0;
-      this.updateStatus('WebRTC kütüphanesi bekleniyor...', 'var(--gold)');
-      const checkPeer = setInterval(() => {
-        attempts++;
-        if (typeof Peer !== 'undefined') {
-          clearInterval(checkPeer);
-          this.joinRoom(code, attempt);
-        } else if (attempts > 20) {
-          clearInterval(checkPeer);
-          alert('PeerJS kütüphanesi yüklenemedi. İnternet bağlantınızı kontrol edin.');
-        }
-      }, 200);
+      this.setJoinStatus('WebRTC kütüphanesi yükleniyor, lütfen bekleyin...', 'var(--gold)');
+      setTimeout(() => this.joinRoom(code), 400);
       return;
     }
-    this.disconnect();
 
     const cleanCode = extractRoomCode(code);
-    if (!cleanCode) {
-      alert('Lütfen geçerli bir oda kodu girin!');
+    if (!cleanCode || cleanCode.length < 4) {
+      this.setJoinStatus('⚠️ Lütfen geçerli 5 haneli oda kodunu girin!', 'var(--gold)');
+      const inp = $('join-room-code-input');
+      if (inp) inp.focus();
       return;
     }
 
+    this.disconnect(true);
     this.roomCode = cleanCode;
     const targetPeerId = 'rumble-room-' + cleanCode;
-    this.updateStatus(attempt > 1 ? `Odaya bağlanılıyor (Deneme ${attempt}/5)...` : 'Odaya bağlanılıyor...', 'var(--gold)');
 
-    this.peer = new Peer(WEBRTC_CONFIG);
-    let connectionEstablished = false;
+    this.setJoinLoading(true, 'BAĞLANILIYOR...');
+    this.setJoinStatus(`⏳ [${cleanCode}] kodlu oda aranıyor...`, 'var(--cyan)');
 
-    this.peer.on('open', (id) => {
+    let isConnected = false;
+    let peerInstance = null;
+
+    const joinTimeout = setTimeout(() => {
+      if (!isConnected) {
+        this.setJoinLoading(false);
+        this.setJoinStatus(`❌ [${cleanCode}] kodlu oda bulunamadı veya kapalı.<br>Kurucunun odayı açtığından ve kodun doğruluğundan emin olun.`, 'var(--red)');
+        this.disconnect(true);
+      }
+    }, 10000);
+
+    try {
+      peerInstance = new Peer(WEBRTC_CONFIG);
+      this.peer = peerInstance;
+    } catch (err) {
+      clearTimeout(joinTimeout);
+      this.setJoinLoading(false);
+      this.setJoinStatus(`❌ WebRTC Başlatılamadı: ${err.message}`, 'var(--red)');
+      return;
+    }
+
+    peerInstance.on('open', (id) => {
+      if (this.peer !== peerInstance) return;
       this.myId = id;
-      const conn = this.peer.connect(targetPeerId, { reliable: true, serialization: 'json' });
+      this.setJoinStatus(`⏳ [${cleanCode}] odasına bağlanılıyor...`, 'var(--gold)');
 
-      conn.on('open', () => {
-        connectionEstablished = true;
+      const conn = peerInstance.connect(targetPeerId, { reliable: true, serialization: 'json' });
+
+      const handleConnOpen = () => {
+        if (isConnected) return;
+        clearTimeout(joinTimeout);
+        isConnected = true;
         this.mode = 'guest';
         this.isHost = false;
         this.hostConn = conn;
         this.connected = true;
-        this.updateStatus('🟢 Odaya Katıldı', 'var(--green)');
 
-        const disp = $('display-room-code');
-        if (disp) disp.innerText = this.roomCode;
-        const box = $('room-code-box');
-        if (box) box.classList.remove('hidden');
+        this.setJoinLoading(false);
+        this.setJoinStatus('');
+        this.showRoomActiveUI(false);
 
         const pDef = CAR_CATALOG[state.currentCarIdx] || CAR_CATALOG[0];
-        conn.send({
-          type: 'join_profile',
-          id: this.myId,
-          name: this.myName,
-          model: pDef.model,
-          paint: state.carPaint,
-          underglow: state.carUnderglow
-        });
+        try {
+          conn.send({
+            type: 'join_profile',
+            id: this.myId,
+            name: this.myName,
+            model: pDef.model,
+            paint: state.carPaint,
+            underglow: state.carUnderglow
+          });
+        } catch(e) {
+          console.warn('send join_profile failed:', e);
+        }
 
         this.setupConnectionHandlers(conn);
         this.updateHostControls(false);
-      });
+        showStuntBanner(`🟢 ODAYA KATILINDI (${cleanCode})`, '#00ff88');
+
+        setTimeout(() => {
+          if (this.connected && !this.isHost && this.lobbyPlayers.length <= 1 && conn.open) {
+            try { conn.send({ type: 'request_lobby_state' }); } catch(e){}
+          }
+        }, 1200);
+      };
+
+      if (conn.open) {
+        handleConnOpen();
+      } else {
+        conn.on('open', handleConnOpen);
+      }
 
       conn.on('error', (err) => {
         console.warn('Conn error:', err);
-        if (!connectionEstablished && attempt < 5) {
-          this.updateStatus(`Bağlantı bekleniyor (${attempt}/5)...`, 'var(--gold)');
-          setTimeout(() => this.joinRoom(cleanCode, attempt + 1), 1200);
-        } else {
-          this.updateStatus('Odaya bağlanılamadı!', 'var(--red)');
-        }
+        clearTimeout(joinTimeout);
+        this.setJoinLoading(false);
+        this.setJoinStatus(`❌ Bağlantı hatası: ${cleanCode} nolu odaya ulaşılamadı.`, 'var(--red)');
       });
 
       conn.on('close', () => {
-        this.updateStatus('Oda kapandı veya bağlantı koptu.', 'var(--red)');
-        this.connected = false;
-        this.mode = 'solo';
-        this.updateHostControls(false);
+        clearTimeout(joinTimeout);
+        this.setJoinLoading(false);
+        this.setJoinStatus('Oda kapandı veya kurucu ayrıldı.', 'var(--red)');
+        this.disconnect(true);
       });
     });
 
-    this.peer.on('error', (err) => {
+    peerInstance.on('error', (err) => {
       console.warn('Guest Peer error:', err);
-      if (!connectionEstablished && (err.type === 'peer-unavailable' || err.type === 'network') && attempt < 5) {
-        this.updateStatus(`Oda aranıyor (${attempt}/5)... Kurucunun açması bekleniyor`, 'var(--gold)');
-        setTimeout(() => this.joinRoom(cleanCode, attempt + 1), 1500);
+      clearTimeout(joinTimeout);
+      this.setJoinLoading(false);
+      if (err.type === 'peer-unavailable') {
+        this.setJoinStatus(`❌ [${cleanCode}] nolu oda bulunamadı veya henüz açılmadı.<br>Kurucunun oyunda "YENİ ODA AÇ" dediğinden emin olun.`, 'var(--red)');
       } else {
-        this.updateStatus('Oda bulunamadı: ' + (err.type === 'peer-unavailable' ? 'Oda henüz aktif değil veya kapalı' : err.type), 'var(--red)');
+        this.setJoinStatus(`❌ Bağlantı hatası: ${err.type || 'Sunucu hatası'}`, 'var(--red)');
       }
     });
   }
@@ -16462,6 +16585,10 @@ class NetworkManager {
           });
         }
         this.renderLobbySlots();
+        this.broadcastLobbyState();
+      }
+
+      else if (data.type === 'request_lobby_state' && this.isHost) {
         this.broadcastLobbyState();
       }
 
@@ -16652,7 +16779,7 @@ class NetworkManager {
     if (el) { el.innerText = txt; el.style.color = color; }
   }
 
-  disconnect() {
+  disconnect(keepJoinStatus = false) {
     if (this.pingInterval) { clearInterval(this.pingInterval); this.pingInterval = null; }
     if (this.hostConn) { try { this.hostConn.close(); } catch(e){} this.hostConn = null; }
     for (const [pId, conn] of this.connections) {
@@ -16663,10 +16790,21 @@ class NetworkManager {
     this.mode = 'solo';
     this.isHost = false;
     this.connected = false;
+    this.roomCode = '';
     this.lobbyPlayers = [];
     this.remoteCars.clear();
-    const box = $('room-code-box');
-    if (box) box.classList.add('hidden');
+
+    const setupBox = $('lobby-connection-setup');
+    const activeBox = $('room-code-box');
+    if (setupBox) setupBox.style.display = 'block';
+    if (activeBox) activeBox.classList.add('hidden');
+
+    this.setJoinLoading(false);
+    if (!keepJoinStatus) {
+      this.setJoinStatus('');
+      this.setCreateStatus('');
+    }
+    this.renderLobbySlots();
     this.updateHostControls(false);
   }
 
@@ -16965,10 +17103,23 @@ function closeTrackLightbox() {
 
 function selectLobbyTab(tab) {
   const isCreate = tab === 'create';
-  $('tab-create-room').classList.toggle('active', isCreate);
-  $('tab-join-room').classList.toggle('active', !isCreate);
-  $('pane-create-room').classList.toggle('hidden', !isCreate);
-  $('pane-join-room').classList.toggle('hidden', isCreate);
+  const tabCreate = $('tab-create-room');
+  const tabJoin = $('tab-join-room');
+  const paneCreate = $('pane-create-room');
+  const paneJoin = $('pane-join-room');
+  if (tabCreate) tabCreate.classList.toggle('active', isCreate);
+  if (tabJoin) tabJoin.classList.toggle('active', !isCreate);
+  if (paneCreate) paneCreate.classList.toggle('hidden', !isCreate);
+  if (paneJoin) paneJoin.classList.toggle('hidden', isCreate);
+  if (isCreate) {
+    if (window.net) net.setCreateStatus('');
+  } else {
+    if (window.net) net.setJoinStatus('');
+    setTimeout(() => {
+      const inp = $('join-room-code-input');
+      if (inp) inp.focus();
+    }, 80);
+  }
 }
 
 function enterLobbyFromRace() {
@@ -19912,9 +20063,17 @@ function setupUI() {
   click('tab-join-room', () => selectLobbyTab('join'));
   click('btn-create-room-action', () => net.createRoom());
   click('btn-join-room-action', () => {
-    const rawVal = $('join-room-code-input').value.trim();
+    const rawVal = $('join-room-code-input') ? $('join-room-code-input').value.trim() : '';
     const code = extractRoomCode(rawVal);
-    if (code) net.joinRoom(code);
+    net.joinRoom(code || rawVal);
+  });
+  click('btn-host-close', () => {
+    net.disconnect();
+    showStuntBanner('ODA KAPATILDI', '#ff2d55');
+  });
+  click('btn-guest-leave', () => {
+    net.disconnect();
+    showStuntBanner('ODADAN AYRILDINIZ', '#ffc53d');
   });
   click('btn-copy-code', () => {
     if (net.roomCode) {
@@ -20008,8 +20167,9 @@ function setupUI() {
     });
     jCodeInp.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
-        const code = extractRoomCode(jCodeInp.value);
-        if (code) net.joinRoom(code);
+        const raw = jCodeInp.value.trim();
+        const code = extractRoomCode(raw);
+        net.joinRoom(code || raw);
       }
     });
   }
@@ -20099,15 +20259,6 @@ function setupUI() {
     bChkLobby.addEventListener('change', (e) => {
       net.fillBots = e.target.checked;
       if (net.isHost) net.broadcastLobbyState();
-    });
-  }
-  const joinInput = $('join-room-code-input');
-  if (joinInput) {
-    joinInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const code = joinInput.value.trim();
-        if (code) net.joinRoom(code);
-      }
     });
   }
 
